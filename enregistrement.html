@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Enregistrement vocal</title>
+</head>
+<body>
+  <h2>Enregistrement vocal</h2>
+  <button onclick="startRecording()">🎙️ Démarrer</button>
+  <button onclick="stopRecording()">🛑 Arrêter</button>
+  <br><br>
+  <audio id="audioPlayback" controls></audio>
+  <p>Copiez ce lien et collez-le dans votre application :</p>
+  <input type="text" id="audioLink" readonly style="width: 100%;" />
+
+  <script>
+    let mediaRecorder;
+    let audioChunks = [];
+
+    async function startRecording() {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+      mediaRecorder.start();
+      audioChunks = [];
+
+      mediaRecorder.ondataavailable = event => {
+        audioChunks.push(event.data);
+      };
+
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+        const audioUrl = URL.createObjectURL(audioBlob);
+        document.getElementById('audioPlayback').src = audioUrl;
+        document.getElementById('audioLink').value = audioUrl;
+      };
+    }
+
+    function stopRecording() {
+      mediaRecorder.stop();
+    }
+  </script>
+</body>
+</html>
